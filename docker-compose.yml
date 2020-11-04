@@ -1,0 +1,52 @@
+version: "3.7"
+services:
+  web:
+    image: 'wolfsellers/magento2-cloud-local:linux-apache-phpfpm74'
+    ports:
+      - ${WEB_PORT:-80}:80
+    volumes:
+      - ./magento/:/var/www/html
+      - ./log/php:/var/log/php-fpm
+      - ./log/apache:/var/log/apache2
+      - ./share:/var/www/share/
+    container_name: training
+    networks:
+      - internal
+
+  elasticsearch7:
+    image: elasticsearch:7.7.0
+    volumes:
+      - ./elasticsearch:/usr/share/elasticsearch/data
+      - ./log/elastic:/var/log/elasticsearch/
+      - ./log/elastic:/usr/share/elasticsearch/logs
+    networks:
+      - internal
+    ports:
+      - 9200:9200
+    environment:
+      - discovery.type=single-node
+      - bootstrap.memory_lock=true
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    container_name: elasticsearch7
+    #    restart: always
+
+  mysql:
+    image: mysql:5.7
+    container_name: eventsMysql
+    ports:
+      - "${APP_DB_PORT:-3306}:3306"
+    volumes:
+      - ./database:/var/lib/mysql
+    networks:
+      - internal
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:-secret}
+      MYSQL_DATABASE: ${DB_DATABASE:-training}
+      MYSQL_USER: ${DB_USERNAME:-magentodb}
+      MYSQL_PASSWORD: ${DB_PASSWORD:-magento}
+networks:
+  internal:
+    driver: "bridge"
