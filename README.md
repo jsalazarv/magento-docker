@@ -64,3 +64,9 @@ bin/magento setup:install --base-url=http://training.wolf/ \
 --search-engine=elasticsearch7 --elasticsearch-host=elasticsearch7 \
 --elasticsearch-port=9200
 ```
+
+You must put the domain of your magento project in the hosts file of your system
+
+```bash
+sudo nano /etc/hosts
+```
